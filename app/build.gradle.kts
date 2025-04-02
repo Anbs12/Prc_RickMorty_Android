@@ -58,6 +58,9 @@ dependencies {
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
 
+    // Para usar ViewModel en Kotlin
+    implementation(libs.androidx.lifecycle.viewmodel.compose)
+
     // Kotlin serialization
     implementation(libs.kotlinx.serialization.json)
 
