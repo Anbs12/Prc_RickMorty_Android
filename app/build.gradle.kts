@@ -2,6 +2,7 @@ plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
     alias(libs.plugins.kotlin.compose)
+    id("org.jetbrains.kotlin.plugin.serialization") version "2.1.0"
 }
 
 android {
@@ -56,4 +57,23 @@ dependencies {
     androidTestImplementation(libs.androidx.ui.test.junit4)
     debugImplementation(libs.androidx.ui.tooling)
     debugImplementation(libs.androidx.ui.test.manifest)
+
+    // Kotlin serialization
+    implementation(libs.kotlinx.serialization.json)
+
+    //Coroutines.
+    implementation(libs.kotlinx.coroutines.android)
+
+    //Coil.
+    implementation(libs.coil.compose)
+    implementation(libs.coil.network.okhttp)
+
+    //Retrofit.
+    implementation(libs.retrofit)
+    //Convertidor JSON Google
+    implementation (libs.converter.gson)
+
+    // OkHttp (Cliente HTTP subyacente que Retrofit utiliza)
+    implementation (libs.okhttp)
+    implementation (libs.logging.interceptor)
 }
