@@ -7,7 +7,7 @@ import retrofit2.converter.gson.GsonConverterFactory
 //Objeto singleton para configuracion retrofit
 object RetrofitInstance {
 
-    private const val BASE_URL = "https://pokeapi.co/api/v2/"
+    private const val BASE_URL = "https://rickandmortyapi.com/"
 
     val retrofitBuilder: ApiService by lazy {
         Retrofit.Builder()

@@ -1,4 +1,4 @@
-package com.example.prc_pokemon.data
+package com.example.prc_pokemon.data.utils
 
 object TAGS {
 
