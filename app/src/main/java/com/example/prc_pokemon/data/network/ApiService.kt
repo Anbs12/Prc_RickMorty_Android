@@ -1,26 +1,32 @@
 package com.example.prc_pokemon.data.network
 
-import com.example.prc_pokemon.data.model.RickMortyModel
+import com.example.prc_pokemon.data.model.Characters
+import com.example.prc_pokemon.data.model.Urls
 import retrofit2.http.GET
 
 
 //Interfaz retrofit para definir peticiones.
 interface ApiService{
 
-    /*@GET("pokemon?limit=10&offset=0") //Endpoint.
-    suspend fun getPokemonListData(): PokemonSearchModel*/
-
+    //Devuelve tres links: Characters, Locations, Epidoses.
     @GET("api")
-    suspend fun getRickMortyListData(): RickMortyModel
+    suspend fun getRickMortyListData(): Urls
 
+    //Devuelve lista de todos los personajes.
     @GET("character")
-    suspend fun getCharacters()
+    suspend fun getCharactersList() : Characters
+
+    //Devuelve un personaje, ingresando ID seleccionado por el usuario.
+    @GET("")
+    suspend fun getCharacter()
 
     @GET("locations")
     suspend fun getLocations()
 
     @GET("episodes")
     suspend fun getEpisodes()
+
+
 
     @GET("")
     suspend fun demoData(
