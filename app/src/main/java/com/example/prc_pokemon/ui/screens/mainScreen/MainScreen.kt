@@ -62,7 +62,7 @@ fun MainApp(
 }
 
 @Composable
-private fun LoadingScreen(modifier: Modifier = Modifier) {
+fun LoadingScreen(modifier: Modifier = Modifier) {
     Column(
         modifier = modifier,
         verticalArrangement = Arrangement.Center,
@@ -74,7 +74,7 @@ private fun LoadingScreen(modifier: Modifier = Modifier) {
 }
 
 @Composable
-private fun NothingScreen(
+fun NothingScreen(
     modifier: Modifier = Modifier,
     message: String
 ) {

@@ -79,4 +79,7 @@ dependencies {
     // OkHttp (Cliente HTTP subyacente que Retrofit utiliza)
     implementation (libs.okhttp)
     implementation (libs.logging.interceptor)
+
+    //Para navegación entre pantallas con Jetpack Compose.
+    implementation(libs.androidx.navigation.compose)
 }
