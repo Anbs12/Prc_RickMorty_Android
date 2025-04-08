@@ -1,6 +1,8 @@
 package com.example.prc_pokemon.data.network
 
 import com.example.prc_pokemon.data.model.Characters
+import com.example.prc_pokemon.data.model.Episodes
+import com.example.prc_pokemon.data.model.Locations
 import com.example.prc_pokemon.data.model.Urls
 import retrofit2.http.GET
 
@@ -20,11 +22,11 @@ interface ApiService{
     @GET("")
     suspend fun getCharacter()
 
-    @GET("locations")
-    suspend fun getLocations()
+    @GET("api/location")
+    suspend fun getLocations() : Locations
 
-    @GET("episodes")
-    suspend fun getEpisodes()
+    @GET("api/episode")
+    suspend fun getEpisodes() : Episodes
 
 
 

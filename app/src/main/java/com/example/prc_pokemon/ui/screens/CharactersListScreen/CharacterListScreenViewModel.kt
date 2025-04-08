@@ -29,7 +29,7 @@ class CharacterListScreenViewModel : ViewModel() {
 
     var charactersUiState: CharacterScreenUiState by mutableStateOf(CharacterScreenUiState.Loading)
 
-    val retrofit = RetrofitInstance.retrofitBuilder
+    private val retrofit = RetrofitInstance.retrofitBuilder
 
 
     init {
@@ -46,13 +46,13 @@ class CharacterListScreenViewModel : ViewModel() {
 
             } catch (e: IOException) {
                 Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
-                CharacterScreenUiState.Error
+                charactersUiState = CharacterScreenUiState.Error
             } catch (e: HttpException) {
                 Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
-                CharacterScreenUiState.Error
+                charactersUiState = CharacterScreenUiState.Error
             } catch (e: Exception) {
                 Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
-                CharacterScreenUiState.Error
+                charactersUiState = CharacterScreenUiState.Error
             }
         }
     }

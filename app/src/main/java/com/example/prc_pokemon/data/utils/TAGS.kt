@@ -4,5 +4,7 @@ object TAGS {
 
     val TAG_MAINSCREEN_VM = "__MainScreenViewModel__"
     val TAG_CHARACTERSREEN_VM = "__CharactersScreenList__"
+    val TAG_LOCATIONSSCREEN_VM = "__LocationsScreenList__"
+    val TAG_EPISODESSCREEN_VM = "__EpisodesScreenList__"
 
 }

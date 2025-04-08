@@ -12,15 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -34,12 +30,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.prc_pokemon.R
 import com.example.prc_pokemon.data.model.PrincipalList
+import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
+import com.example.prc_pokemon.ui.utils.LoadingScreen
 
 @Composable
 fun MainApp(
     modifier: Modifier = Modifier,
     viewModel: MainScreenViewModel = viewModel(),
-    onGoCharactersScreen: () -> Unit
+    onGoToScreen: (Int) -> Unit
 ) {
     val data by viewModel.state.collectAsState()
 
@@ -50,10 +48,10 @@ fun MainApp(
                 ListOfCards(
                     modifier = Modifier.fillMaxSize(),
                     data = data.data,
-                    onGoCharactersScreen
+                    onGoToScreen
                 )
             } else {
-                NothingScreen(
+                ErrorMessageScreen(
                     modifier = Modifier.fillMaxSize(),
                     message = data.error
                 )
@@ -64,36 +62,10 @@ fun MainApp(
 }
 
 @Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Obteniendo datos...")
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-fun NothingScreen(
-    modifier: Modifier = Modifier,
-    message: String
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "Error al obtener datos: $message")
-    }
-}
-
-@Composable
 private fun ListOfCards(
     modifier: Modifier = Modifier,
     data: List<PrincipalList>,
-    onGoCharactersScreen: () -> Unit
+    onGoToScreen: (Int) -> Unit
 ) {
 
     val imgList = listOf(
@@ -108,7 +80,9 @@ private fun ListOfCards(
                     .padding(20.dp),
                 name = item.name,
                 imgInt = imgList[index],
-                onGoCharactersScreen = onGoCharactersScreen,
+                onGoToScreen = {
+                    onGoToScreen(index)
+                },
             )
         }
     }
@@ -120,16 +94,14 @@ private fun ItemCard(
     modifier: Modifier = Modifier,
     name: String,
     @DrawableRes imgInt: Int,
-    onGoCharactersScreen: () -> Unit
+    onGoToScreen: () -> Unit
 ) {
-    var isEnabled by remember { mutableStateOf(false) }
-    if (name == "Personajes") isEnabled = true
+
     ElevatedCard(
         modifier = modifier,
         onClick = {
-            onGoCharactersScreen()
+            onGoToScreen()
         },
-        enabled = isEnabled,
         shape = CardDefaults.shape
     ) {
         Column(
@@ -167,6 +139,6 @@ private fun Cardpreview(modifier: Modifier = Modifier) {
         modifier = Modifier.fillMaxWidth(),
         name = "Episodios",
         imgInt = res,
-        onGoCharactersScreen = TODO(),
+        onGoToScreen = TODO(),
     )
 }
