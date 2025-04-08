@@ -13,7 +13,7 @@ interface ApiService{
     suspend fun getRickMortyListData(): Urls
 
     //Devuelve lista de todos los personajes.
-    @GET("character")
+    @GET("api/character")
     suspend fun getCharactersList() : Characters
 
     //Devuelve un personaje, ingresando ID seleccionado por el usuario.

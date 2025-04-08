@@ -1,5 +1,6 @@
 package com.example.prc_pokemon.ui.screens.CharactersListScreen
 
+import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -20,7 +21,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -41,11 +41,10 @@ import com.example.prc_pokemon.ui.screens.mainScreen.NothingScreen
 @Composable
 fun CharacterListScreenApp(
     modifier: Modifier = Modifier,
-    viewModel: CharacterListScreenViewModel = viewModel(),
-    characterScreenUiState: CharacterScreenUiState
+    viewModel: CharacterListScreenViewModel = viewModel()
 ) {
 
-    //val state by viewModel.uiState.collectAsState()
+    val characterScreenUiState = viewModel.charactersUiState
 
     Column(
         modifier = modifier
@@ -121,14 +120,16 @@ private fun CharacterCard(modifier: Modifier = Modifier, character: SingleCharac
             }
 
             // Información adicional si está expandido
-            if (isExpanded) {
-                Spacer(modifier = Modifier.height(8.dp))
-                Text("Género: ${character.gender}")
-                Text("Especie: ${character.species}")
-                Text("Estado: ${character.status}")
-                Text("Tipo: ${character.type.ifEmpty { "Desconocido" }}")
-                Text("Origen: ${character.origin.name}")
-                Text("Última ubicación: ${character.location.name}")
+            AnimatedVisibility(isExpanded) {
+                Column {
+                    Spacer(modifier = Modifier.height(8.dp))
+                    Text("Género: ${character.gender}")
+                    Text("Especie: ${character.species}")
+                    Text("Estado: ${character.status}")
+                    Text("Tipo: ${character.type.ifEmpty { "Desconocido" }}")
+                    Text("Origen: ${character.origin.name}")
+                    Text("Última ubicación: ${character.location.name}")
+                }
             }
         }
     }

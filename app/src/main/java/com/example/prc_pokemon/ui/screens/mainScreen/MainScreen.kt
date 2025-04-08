@@ -38,7 +38,8 @@ import com.example.prc_pokemon.data.model.PrincipalList
 @Composable
 fun MainApp(
     modifier: Modifier = Modifier,
-    viewModel: MainScreenViewModel = viewModel()
+    viewModel: MainScreenViewModel = viewModel(),
+    onGoCharactersScreen: () -> Unit
 ) {
     val data by viewModel.state.collectAsState()
 
@@ -48,7 +49,8 @@ fun MainApp(
             if (data.error == "") {
                 ListOfCards(
                     modifier = Modifier.fillMaxSize(),
-                    data = data.data
+                    data = data.data,
+                    onGoCharactersScreen
                 )
             } else {
                 NothingScreen(
@@ -90,7 +92,8 @@ fun NothingScreen(
 @Composable
 private fun ListOfCards(
     modifier: Modifier = Modifier,
-    data: List<PrincipalList>
+    data: List<PrincipalList>,
+    onGoCharactersScreen: () -> Unit
 ) {
 
     val imgList = listOf(
@@ -105,6 +108,7 @@ private fun ListOfCards(
                     .padding(20.dp),
                 name = item.name,
                 imgInt = imgList[index],
+                onGoCharactersScreen = onGoCharactersScreen,
             )
         }
     }
@@ -115,14 +119,15 @@ private fun ListOfCards(
 private fun ItemCard(
     modifier: Modifier = Modifier,
     name: String,
-    @DrawableRes imgInt: Int
+    @DrawableRes imgInt: Int,
+    onGoCharactersScreen: () -> Unit
 ) {
     var isEnabled by remember { mutableStateOf(false) }
     if (name == "Personajes") isEnabled = true
     ElevatedCard(
         modifier = modifier,
         onClick = {
-            println("Clicked. $name")
+            onGoCharactersScreen()
         },
         enabled = isEnabled,
         shape = CardDefaults.shape
@@ -161,6 +166,7 @@ private fun Cardpreview(modifier: Modifier = Modifier) {
     ItemCard(
         modifier = Modifier.fillMaxWidth(),
         name = "Episodios",
-        imgInt = res
+        imgInt = res,
+        onGoCharactersScreen = TODO(),
     )
 }

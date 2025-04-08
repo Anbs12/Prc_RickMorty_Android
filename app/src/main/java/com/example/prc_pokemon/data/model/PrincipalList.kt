@@ -3,7 +3,8 @@ package com.example.prc_pokemon.data.model
 import com.google.gson.annotations.SerializedName
 
 /*
-Para la lista de opciones a utilizar.
+Esta es la clase de datos que representa la primera lista donde el  usuario selecciona
+si va a personajes, episodios o localizaciones.
  */
 
 data class PrincipalList(

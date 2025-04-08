@@ -1,8 +1,15 @@
 package com.example.prc_pokemon.ui.screens.CharactersListScreen
 
+import android.util.Log
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.prc_pokemon.data.model.Characters
+import com.example.prc_pokemon.data.network.RetrofitInstance
+import com.example.prc_pokemon.data.utils.TAGS.TAG_CHARACTERSREEN_VM
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -17,8 +24,13 @@ sealed interface CharacterScreenUiState {
 
 class CharacterListScreenViewModel : ViewModel() {
 
-    private val _uiState = MutableStateFlow(CharacterScreenUiState.Loading)
+    private var _uiState = MutableStateFlow(CharacterScreenUiState.Error)
     val uiState: StateFlow<CharacterScreenUiState> = _uiState
+
+    var charactersUiState: CharacterScreenUiState by mutableStateOf(CharacterScreenUiState.Loading)
+
+    val retrofit = RetrofitInstance.retrofitBuilder
+
 
     init {
         getCharacters()
@@ -28,11 +40,18 @@ class CharacterListScreenViewModel : ViewModel() {
         viewModelScope.launch {
             try {
 
+                val characters = retrofit.getCharactersList()
+                delay(1000)
+                charactersUiState = CharacterScreenUiState.Success(characters)
+
             } catch (e: IOException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
                 CharacterScreenUiState.Error
             } catch (e: HttpException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
                 CharacterScreenUiState.Error
             } catch (e: Exception) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
                 CharacterScreenUiState.Error
             }
         }
