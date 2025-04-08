@@ -2,6 +2,7 @@ package com.example.prc_pokemon.ui.screens.CharactersListScreen
 
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
@@ -35,6 +36,7 @@ import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
 import com.example.prc_pokemon.data.model.Characters
 import com.example.prc_pokemon.data.model.SingleCharacter
+import com.example.prc_pokemon.ui.utils.BarraDeBusqueda
 import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
 import com.example.prc_pokemon.ui.utils.LoadingScreen
 
@@ -49,7 +51,11 @@ fun CharacterListScreenAppMain(
         modifier = modifier
     ) {
         when (characterScreenUiState) {
-            is CharacterScreenUiState.Success -> Result(data = characterScreenUiState.charactersList)
+            is CharacterScreenUiState.Success -> Result(
+                modifier = Modifier.fillMaxSize(),
+                data = characterScreenUiState.charactersList
+            )
+
             is CharacterScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
             is CharacterScreenUiState.Error -> ErrorMessageScreen(
                 modifier = Modifier.fillMaxSize(),
@@ -64,11 +70,22 @@ private fun Result(
     modifier: Modifier = Modifier,
     data: Characters
 ) {
-    LazyColumn {
-        itemsIndexed(data.results) { index, item ->
-            CharacterCard(
-                character = item
-            )
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        //TODO hacer y completar filtrado de personajes por nombre.
+        BarraDeBusqueda { query ->
+            val listFilter = data.results.filter { it.name.contains(query) }
+            println("Lista filtrada: $listFilter")
+        }
+        LazyColumn {
+            itemsIndexed(data.results) { index, item ->
+                CharacterCard(
+                    character = item
+                )
+            }
         }
     }
 }

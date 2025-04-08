@@ -9,6 +9,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.prc_pokemon.data.model.Episodes
 import com.example.prc_pokemon.data.network.RetrofitInstance
 import com.example.prc_pokemon.data.utils.TAGS.TAG_EPISODESSCREEN_VM
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 import okio.IOException
 import retrofit2.HttpException
@@ -32,6 +33,7 @@ class EpisodesListScreenViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val data = retrofit.getEpisodes()
+                delay(1000)
                 uiState = EpisodesListScreenUiState.Success(data)
 
             } catch (e: Exception) {
