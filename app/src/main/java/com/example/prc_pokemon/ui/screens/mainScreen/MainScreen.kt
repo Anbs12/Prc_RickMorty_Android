@@ -12,15 +12,11 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.layout.ContentScale
@@ -34,11 +30,14 @@ import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.prc_pokemon.R
 import com.example.prc_pokemon.data.model.PrincipalList
+import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
+import com.example.prc_pokemon.ui.utils.LoadingScreen
 
 @Composable
 fun MainApp(
     modifier: Modifier = Modifier,
-    viewModel: MainScreenViewModel = viewModel()
+    viewModel: MainScreenViewModel = viewModel(),
+    onGoToScreen: (Int) -> Unit
 ) {
     val data by viewModel.state.collectAsState()
 
@@ -48,10 +47,11 @@ fun MainApp(
             if (data.error == "") {
                 ListOfCards(
                     modifier = Modifier.fillMaxSize(),
-                    data = data.data
+                    data = data.data,
+                    onGoToScreen
                 )
             } else {
-                NothingScreen(
+                ErrorMessageScreen(
                     modifier = Modifier.fillMaxSize(),
                     message = data.error
                 )
@@ -62,35 +62,10 @@ fun MainApp(
 }
 
 @Composable
-private fun LoadingScreen(modifier: Modifier = Modifier) {
-    Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
-        horizontalAlignment = Alignment.CenterHorizontally
-    ) {
-        Text(text = "Obteniendo datos...")
-        CircularProgressIndicator()
-    }
-}
-
-@Composable
-private fun NothingScreen(
-    modifier: Modifier = Modifier,
-    message: String
-) {
-    Column(
-        modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
-    ) {
-        Text(text = "Error al obtener datos: $message")
-    }
-}
-
-@Composable
 private fun ListOfCards(
     modifier: Modifier = Modifier,
-    data: List<PrincipalList>
+    data: List<PrincipalList>,
+    onGoToScreen: (Int) -> Unit
 ) {
 
     val imgList = listOf(
@@ -105,6 +80,9 @@ private fun ListOfCards(
                     .padding(20.dp),
                 name = item.name,
                 imgInt = imgList[index],
+                onGoToScreen = {
+                    onGoToScreen(index)
+                },
             )
         }
     }
@@ -115,16 +93,15 @@ private fun ListOfCards(
 private fun ItemCard(
     modifier: Modifier = Modifier,
     name: String,
-    @DrawableRes imgInt: Int
+    @DrawableRes imgInt: Int,
+    onGoToScreen: () -> Unit
 ) {
-    var isEnabled by remember { mutableStateOf(false) }
-    if (name == "Personajes") isEnabled = true
+
     ElevatedCard(
         modifier = modifier,
         onClick = {
-            println("Clicked. $name")
+            onGoToScreen()
         },
-        enabled = isEnabled,
         shape = CardDefaults.shape
     ) {
         Column(
@@ -138,7 +115,7 @@ private fun ItemCard(
                     painter = painterResource(imgInt), contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp),
+                        .height(270.dp),
                     contentScale = ContentScale.FillWidth
                 )
             }
@@ -161,6 +138,7 @@ private fun Cardpreview(modifier: Modifier = Modifier) {
     ItemCard(
         modifier = Modifier.fillMaxWidth(),
         name = "Episodios",
-        imgInt = res
+        imgInt = res,
+        onGoToScreen = TODO(),
     )
 }

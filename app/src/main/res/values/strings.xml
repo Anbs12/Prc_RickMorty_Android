@@ -1,3 +1,9 @@
 <resources>
     <string name="app_name">Prc_Pokemon</string>
+
+    <string name="Personajes">Personajes</string>
+    <string name="Localizaciones">Localizaciones</string>
+    <string name="Episodios">Episodios</string>
+
+    <string name="busqueda_personajes">Búsqueda de personajes.</string>
 </resources>
