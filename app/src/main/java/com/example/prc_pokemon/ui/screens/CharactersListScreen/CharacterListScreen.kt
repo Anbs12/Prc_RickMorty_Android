@@ -22,6 +22,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,6 +40,7 @@ import com.example.prc_pokemon.data.model.SingleCharacter
 import com.example.prc_pokemon.ui.utils.BarraDeBusqueda
 import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
 import com.example.prc_pokemon.ui.utils.LoadingScreen
+import kotlinx.coroutines.delay
 
 @Composable
 fun CharacterListScreenAppMain(
@@ -70,18 +72,46 @@ private fun Result(
     modifier: Modifier = Modifier,
     data: Characters
 ) {
+    var expanded by remember { mutableStateOf(false) }
+    var message by remember { mutableStateOf("") }
+    //Observa los cambios en la lista.
+    var listaObserver by remember { mutableStateOf(data.results) }
     Column(
         modifier = modifier,
         horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Center
+        verticalArrangement = Arrangement.Top
     ) {
-        //TODO hacer y completar filtrado de personajes por nombre.
         BarraDeBusqueda { query ->
-            val listFilter = data.results.filter { it.name.contains(query) }
-            println("Lista filtrada: $listFilter")
+            var personajeFiltrado =
+                listaObserver.filter { it.name.lowercase().contains(query.lowercase()) }
+            listaObserver = emptyList()
+            listaObserver = personajeFiltrado
+            when {
+                personajeFiltrado.isEmpty() -> {
+                    message = "No se ha encontrado al personaje."
+                    expanded = true
+                    listaObserver = data.results
+                }
+
+                query.isEmpty() -> {
+                    message = "No ha ingresado ningun nombre."
+                    expanded = true
+                    listaObserver = data.results
+                }
+            }
+        }
+        if (expanded) {
+            LaunchedEffect(Unit) {
+                delay(2000)
+                expanded = false
+            }
+        }
+        //Texto que aparece y luego desaparece.
+        AnimatedVisibility(expanded) {
+            Text(text = message)
         }
         LazyColumn {
-            itemsIndexed(data.results) { index, item ->
+            itemsIndexed(listaObserver) { index, item ->
                 CharacterCard(
                     character = item
                 )
@@ -150,4 +180,3 @@ private fun CharacterCard(modifier: Modifier = Modifier, character: SingleCharac
         }
     }
 }
-

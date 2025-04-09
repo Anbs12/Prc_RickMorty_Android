@@ -24,6 +24,7 @@ sealed interface CharacterScreenUiState {
 
 class CharacterListScreenViewModel : ViewModel() {
 
+    //Modo Kotlin Flow
     private var _uiState = MutableStateFlow(CharacterScreenUiState.Error)
     val uiState: StateFlow<CharacterScreenUiState> = _uiState
 

@@ -118,12 +118,13 @@ fun BarraDeBusqueda(
                 inputField = {
                     SearchBarDefaults.InputField(
                         query = text,
-                        onQueryChange = { text = it },
+                        onQueryChange = {
+                            text = it
+                            onQuerySearch(it) //Al devolver nada, se reiniciara la lista.
+                        },
                         onSearch = {
                             expanded = false
-                            println("Presionada para buscar____")
-
-                            //mandamos query de busqueda.
+                            //manda query de busqueda.
                             onQuerySearch(text)
                         },
                         expanded = expanded,
@@ -133,8 +134,8 @@ fun BarraDeBusqueda(
                         trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
                     )
                 },
-                expanded = expanded,
-                onExpandedChange = { expanded = it },
+                expanded = false,
+                onExpandedChange = { expanded = it }
             ) {/*Searchbar llaves.*/ }
         }
     } else {
@@ -147,7 +148,10 @@ fun BarraDeBusqueda(
         ) {
             OutlinedTextField(
                 value = text,
-                onValueChange = { text = it },
+                onValueChange = {
+                    text = it
+                    onQuerySearch(it)
+                },
                 label = {
                     Text("Buscar")
                 },
@@ -163,8 +167,6 @@ fun BarraDeBusqueda(
                 ),
                 keyboardActions = KeyboardActions(
                     onSearch = {
-                        println("Se presionó 'Done' (sin variables)")
-
                         //Mandamos query de busqueda.
                         onQuerySearch(text)
                     }

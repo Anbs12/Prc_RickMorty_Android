@@ -115,7 +115,7 @@ private fun ItemCard(
                     painter = painterResource(imgInt), contentDescription = null,
                     modifier = Modifier
                         .fillMaxWidth()
-                        .height(150.dp),
+                        .height(270.dp),
                     contentScale = ContentScale.FillWidth
                 )
             }

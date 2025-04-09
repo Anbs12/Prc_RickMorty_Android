@@ -4,7 +4,8 @@ package com.example.prc_pokemon.data.model
 Formatos de datos para obtener todos los Personajes.
  */
 
-/** Clase de datos para personajes. */
+/** Clase de datos para personajes.
+ * @param results Lista con informacion de cada personaje.*/
 data class Characters(
     val info: CharactersInfo,
     val results: List<SingleCharacter>
