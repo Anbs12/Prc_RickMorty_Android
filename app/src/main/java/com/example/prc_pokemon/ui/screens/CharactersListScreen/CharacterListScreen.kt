@@ -1,6 +1,7 @@
 package com.example.prc_pokemon.ui.screens.CharactersListScreen
 
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -31,6 +32,8 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.geometry.Offset
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
@@ -143,9 +146,7 @@ private fun CharacterCard(modifier: Modifier = Modifier, character: SingleCharac
                     .height(200.dp)
                     .clip(RoundedCornerShape(12.dp))
             )
-
             Spacer(modifier = Modifier.height(8.dp))
-
             // Fila para nombre + ícono desplegable
             Row(
                 verticalAlignment = Alignment.CenterVertically,
@@ -164,19 +165,47 @@ private fun CharacterCard(modifier: Modifier = Modifier, character: SingleCharac
                         .size(24.dp)
                 )
             }
-
             // Información adicional si está expandido
             AnimatedVisibility(isExpanded) {
                 Column {
                     Spacer(modifier = Modifier.height(8.dp))
                     Text("Género: ${character.gender}")
                     Text("Especie: ${character.species}")
-                    Text("Estado: ${character.status}")
+                    StatusColorAndText(status = character.status)
                     Text("Tipo: ${character.type.ifEmpty { "Desconocido" }}")
                     Text("Origen: ${character.origin.name}")
                     Text("Última ubicación: ${character.location.name}")
                 }
             }
         }
+    }
+}
+
+@Composable
+private fun StatusColorAndText(status: String) {
+    var colorStatus: Color = Color.Blue
+    when (status) {
+        "Alive" -> colorStatus = Color.Green
+        "Dead" -> colorStatus = Color.Red
+        "unknown" -> colorStatus = Color.Gray
+    }
+    Row() {
+        CircleWithChangingColor(colorStatus, modifier = Modifier.padding(end = 5.dp))
+        Text(text = status)
+    }
+}
+
+/** Cambia el color de un circulo al crearse.
+ * @param color Recibe el color */
+@Composable
+private fun CircleWithChangingColor(color: Color, modifier: Modifier = Modifier) {
+    Canvas(modifier = modifier.size(20.dp)) {
+        val canvasWidth = size.width
+        val canvasHeight = size.height
+        drawCircle(
+            color = color,
+            center = Offset(x = canvasWidth / 2, y = canvasHeight / 2),
+            radius = size.minDimension / 2
+        )
     }
 }
