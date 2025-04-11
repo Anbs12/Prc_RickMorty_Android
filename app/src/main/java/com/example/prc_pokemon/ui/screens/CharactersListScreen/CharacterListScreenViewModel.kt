@@ -25,13 +25,12 @@ sealed interface CharacterScreenUiState {
 class CharacterListScreenViewModel : ViewModel() {
 
     //Modo Kotlin Flow
-    private var _uiState = MutableStateFlow(CharacterScreenUiState.Error)
-    val uiState: StateFlow<CharacterScreenUiState> = _uiState
+    private var _uiState = MutableStateFlow(1)
+    val uiState: StateFlow<Int> = _uiState
 
     var charactersUiState: CharacterScreenUiState by mutableStateOf(CharacterScreenUiState.Loading)
 
     private val retrofit = RetrofitInstance.retrofitBuilder
-
 
     init {
         getCharacters()
@@ -40,11 +39,49 @@ class CharacterListScreenViewModel : ViewModel() {
     fun getCharacters() {
         viewModelScope.launch {
             try {
-
                 val characters = retrofit.getCharactersList()
                 delay(1000)
                 charactersUiState = CharacterScreenUiState.Success(characters)
+            } catch (e: IOException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            } catch (e: HttpException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            } catch (e: Exception) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            }
+        }
+    }
 
+    fun getCharactersNextPage() {
+        viewModelScope.launch {
+            try {
+                val characters = retrofit.getCharactersNextPage(_uiState.value++)
+                charactersUiState = CharacterScreenUiState.Loading
+                delay(1000)
+                charactersUiState = CharacterScreenUiState.Success(characters)
+            } catch (e: IOException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            } catch (e: HttpException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            } catch (e: Exception) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            }
+        }
+    }
+
+    fun getCharactersPreviousPage() {
+        viewModelScope.launch {
+            try {
+                val characters = retrofit.getCharactersPreviousPage(_uiState.value--)
+                charactersUiState = CharacterScreenUiState.Loading
+                delay(1000)
+                charactersUiState = CharacterScreenUiState.Success(characters)
             } catch (e: IOException) {
                 Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
                 charactersUiState = CharacterScreenUiState.Error

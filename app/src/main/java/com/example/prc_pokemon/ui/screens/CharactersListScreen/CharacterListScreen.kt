@@ -7,15 +7,19 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -58,7 +62,9 @@ fun CharacterListScreenAppMain(
         when (characterScreenUiState) {
             is CharacterScreenUiState.Success -> Result(
                 modifier = Modifier.fillMaxSize(),
-                data = characterScreenUiState.charactersList
+                data = characterScreenUiState.charactersList,
+                onNextPage = { viewModel.getCharactersNextPage() },
+                onPreviousPage = { viewModel.getCharactersPreviousPage() }
             )
 
             is CharacterScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -73,7 +79,9 @@ fun CharacterListScreenAppMain(
 @Composable
 private fun Result(
     modifier: Modifier = Modifier,
-    data: Characters
+    data: Characters,
+    onNextPage: () -> Unit,
+    onPreviousPage: () -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
@@ -113,10 +121,55 @@ private fun Result(
         AnimatedVisibility(expanded) {
             Text(text = message)
         }
-        LazyColumn {
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxWidth()
+                .fillMaxHeight(0.9f),
+            verticalArrangement = Arrangement.spacedBy(1.dp)
+        ) {
             itemsIndexed(listaObserver) { index, item ->
                 CharacterCard(
                     character = item
+                )
+            }
+        }
+        Row(
+            modifier = Modifier.fillMaxSize(),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            //Previous Page.
+            Row(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(50.dp)
+                    .clickable {
+                        onPreviousPage()
+                    }
+                    .padding(5.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "Pagina anterior."
+                )
+                Text(text = "Anterior")
+            }
+            Row(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(50.dp)
+                    .clickable {
+                        onNextPage()
+                    }
+                    .padding(5.dp),
+                horizontalArrangement = Arrangement.Center,
+                verticalAlignment = Alignment.CenterVertically) {
+                Text(text = "Siguiente")
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = "Pagina siguiente."
                 )
             }
         }

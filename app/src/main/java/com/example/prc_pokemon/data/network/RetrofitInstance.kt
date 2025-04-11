@@ -4,7 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 
-//Objeto singleton para configuracion retrofit
+/** Objeto singleton para configuracion retrofit. */
 object RetrofitInstance {
 
     private const val BASE_URL = "https://rickandmortyapi.com/"

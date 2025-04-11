@@ -5,6 +5,8 @@ import com.example.prc_pokemon.data.model.Episodes
 import com.example.prc_pokemon.data.model.Locations
 import com.example.prc_pokemon.data.model.Urls
 import retrofit2.http.GET
+import retrofit2.http.Path
+import retrofit2.http.Query
 
 
 //Interfaz retrofit para definir peticiones.
@@ -18,9 +20,12 @@ interface ApiService {
     @GET("api/character")
     suspend fun getCharactersList(): Characters
 
-    //TODO crear paginacion o ampliacion de la lista para terminar app.
-    @GET("api/character//?page=3")
-    suspend fun getNextPage(): Characters
+    @GET("api/character/?page=")
+    suspend fun getCharactersNextPage(@Query(value = "page") page: Int): Characters
+
+    //TODO continuar aplicando y añadiendo paginacion a la pantalla personajes.
+    @GET("api/character/?page=")
+    suspend fun getCharactersPreviousPage(@Query(value = "page") page: Int): Characters
 
     /**Devuelve lista de todos las localizaciones de la serie.*/
     @GET("api/location")
@@ -30,4 +35,8 @@ interface ApiService {
     @GET("api/episode")
     suspend fun getEpisodes(): Episodes
 
+
+    //EJEMPLO CON PATH
+    //@GET("{data}")
+    //suspend fun demo(@Path("data") data: Int): Characters
 }
