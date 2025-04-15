@@ -24,9 +24,13 @@ sealed interface CharacterScreenUiState {
 
 class CharacterListScreenViewModel : ViewModel() {
 
-    //Modo Kotlin Flow
-    private var _uiState = MutableStateFlow(1)
-    val uiState: StateFlow<Int> = _uiState
+    //Almacena url de paginacion.
+    private var _nextUrlPage = MutableStateFlow("")
+    val nextStatePage: StateFlow<String> = _nextUrlPage
+    private var _prevUrlPage = MutableStateFlow("")
+    val previousStatePage: StateFlow<String> = _prevUrlPage
+    private var _nPage = MutableStateFlow(1)
+    val nPage : StateFlow<Int> = _nPage
 
     var charactersUiState: CharacterScreenUiState by mutableStateOf(CharacterScreenUiState.Loading)
 
@@ -40,6 +44,7 @@ class CharacterListScreenViewModel : ViewModel() {
         viewModelScope.launch {
             try {
                 val characters = retrofit.getCharactersList()
+                _nextUrlPage.value = characters.info.next
                 delay(1000)
                 charactersUiState = CharacterScreenUiState.Success(characters)
             } catch (e: IOException) {
@@ -58,8 +63,11 @@ class CharacterListScreenViewModel : ViewModel() {
     fun getCharactersNextPage() {
         viewModelScope.launch {
             try {
-                val characters = retrofit.getCharactersNextPage(_uiState.value++)
+                val characters = retrofit.getCharactersNextPage(_nextUrlPage.value)
+                _nextUrlPage.value = characters.info.next
+                _prevUrlPage.value = characters.info.prev
                 charactersUiState = CharacterScreenUiState.Loading
+                _nPage.value++
                 delay(1000)
                 charactersUiState = CharacterScreenUiState.Success(characters)
             } catch (e: IOException) {
@@ -78,8 +86,11 @@ class CharacterListScreenViewModel : ViewModel() {
     fun getCharactersPreviousPage() {
         viewModelScope.launch {
             try {
-                val characters = retrofit.getCharactersPreviousPage(_uiState.value--)
+                val characters = retrofit.getCharactersPreviousPage(_prevUrlPage.value)
+                _nextUrlPage.value = characters.info.next
+                _prevUrlPage.value = characters.info.prev
                 charactersUiState = CharacterScreenUiState.Loading
+                _nPage.value--
                 delay(1000)
                 charactersUiState = CharacterScreenUiState.Success(characters)
             } catch (e: IOException) {

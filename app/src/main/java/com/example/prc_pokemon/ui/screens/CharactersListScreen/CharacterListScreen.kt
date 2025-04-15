@@ -1,5 +1,6 @@
 package com.example.prc_pokemon.ui.screens.CharactersListScreen
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.clickable
@@ -49,6 +50,7 @@ import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
 import com.example.prc_pokemon.ui.utils.LoadingScreen
 import kotlinx.coroutines.delay
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun CharacterListScreenAppMain(
     modifier: Modifier = Modifier,
@@ -64,7 +66,9 @@ fun CharacterListScreenAppMain(
                 modifier = Modifier.fillMaxSize(),
                 data = characterScreenUiState.charactersList,
                 onNextPage = { viewModel.getCharactersNextPage() },
-                onPreviousPage = { viewModel.getCharactersPreviousPage() }
+                onPreviousPage = { viewModel.getCharactersPreviousPage() },
+                onNullPrevStatusPage = if (viewModel.previousStatePage.value.isNullOrEmpty()) false else true,
+                nPage = viewModel.nPage.value
             )
 
             is CharacterScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -80,6 +84,8 @@ fun CharacterListScreenAppMain(
 private fun Result(
     modifier: Modifier = Modifier,
     data: Characters,
+    onNullPrevStatusPage: Boolean,
+    nPage: Int,
     onNextPage: () -> Unit,
     onPreviousPage: () -> Unit
 ) {
@@ -143,9 +149,12 @@ private fun Result(
                 modifier = Modifier
                     .width(100.dp)
                     .height(50.dp)
-                    .clickable {
-                        onPreviousPage()
-                    }
+                    .clickable(
+                        enabled = onNullPrevStatusPage,
+                        onClick = {
+                            onPreviousPage()
+                        }
+                    )
                     .padding(5.dp),
                 horizontalArrangement = Arrangement.Center,
                 verticalAlignment = Alignment.CenterVertically
@@ -156,6 +165,8 @@ private fun Result(
                 )
                 Text(text = "Anterior")
             }
+            Text(text = nPage.toString())
+            //Next Page.
             Row(
                 modifier = Modifier
                     .width(100.dp)
@@ -196,7 +207,7 @@ private fun CharacterCard(modifier: Modifier = Modifier, character: SingleCharac
                 contentScale = ContentScale.Crop,
                 modifier = Modifier
                     .fillMaxWidth()
-                    .height(200.dp)
+                    .height(300.dp)
                     .clip(RoundedCornerShape(12.dp))
             )
             Spacer(modifier = Modifier.height(8.dp))
