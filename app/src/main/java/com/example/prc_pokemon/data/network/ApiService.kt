@@ -5,34 +5,38 @@ import com.example.prc_pokemon.data.model.Episodes
 import com.example.prc_pokemon.data.model.Locations
 import com.example.prc_pokemon.data.model.Urls
 import retrofit2.http.GET
+import retrofit2.http.Url
 
 
 //Interfaz retrofit para definir peticiones.
-interface ApiService{
+interface ApiService {
 
-    //Devuelve tres links: Characters, Locations, Epidoses.
+    /**Devuelve tres links: Characters, Locations, Epidoses.*/
     @GET("api")
     suspend fun getRickMortyListData(): Urls
 
-    //Devuelve lista de todos los personajes.
+    /**Devuelve lista de los primeros 20 personajes de la serie.*/
     @GET("api/character")
-    suspend fun getCharactersList() : Characters
+    suspend fun getCharactersList(): Characters
 
-    //Devuelve un personaje, ingresando ID seleccionado por el usuario.
-    @GET("")
-    suspend fun getCharacter()
+    /**Devuelve lista de 20 personajes de la siguiente pagina.*/
+    @GET
+    suspend fun getCharactersNextPage(@Url url: String): Characters
 
+    /**Devuelve lista de 20 personajes de la anterior pagina.*/
+    @GET
+    suspend fun getCharactersPreviousPage(@Url url: String): Characters
+
+    /**Devuelve lista de todos las localizaciones de la serie.*/
     @GET("api/location")
-    suspend fun getLocations() : Locations
+    suspend fun getLocations(): Locations
 
+    /**Devuelve lista de todos los episodios de la serie.*/
     @GET("api/episode")
-    suspend fun getEpisodes() : Episodes
+    suspend fun getEpisodes(): Episodes
 
 
-
-    @GET("")
-    suspend fun demoData(
-
-    )
-
+    //EJEMPLO CON PATH
+    //@GET("{data}")
+    //suspend fun demo(@Path("data") data: Int): Characters
 }

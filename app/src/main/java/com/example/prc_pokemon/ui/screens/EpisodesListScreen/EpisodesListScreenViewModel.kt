@@ -1,9 +1,9 @@
 package com.example.prc_pokemon.ui.screens.EpisodesListScreen
 
 import android.util.Log
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
-import androidx.compose.runtime.getValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.prc_pokemon.data.model.Episodes

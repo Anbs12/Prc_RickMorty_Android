@@ -16,7 +16,7 @@ data class CharactersInfo(
     val count: Int,
     val next: String,
     val pages: Int,
-    val prev: Any
+    val prev: String
 )
 
 /** Datos de cada personaje individual.*/
