@@ -3,6 +3,7 @@ package com.example.prc_pokemon.ui.screens.CharactersListScreen
 import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Canvas
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -22,6 +23,7 @@ import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.automirrored.filled.ArrowBack
 import androidx.compose.material.icons.automirrored.filled.ArrowForward
 import androidx.compose.material.icons.filled.ArrowDropDown
+import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -49,6 +51,7 @@ import com.example.prc_pokemon.ui.utils.BarraDeBusqueda
 import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
 import com.example.prc_pokemon.ui.utils.LoadingScreen
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.StateFlow
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -58,17 +61,22 @@ fun CharacterListScreenAppMain(
 ) {
     val characterScreenUiState = viewModel.charactersUiState
 
+    //TODO hacer que la barra de busqueda encuentre personajes por llamada a la API.
+
     Column(
-        modifier = modifier
+        modifier = modifier,
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
         when (characterScreenUiState) {
             is CharacterScreenUiState.Success -> Result(
-                modifier = Modifier.fillMaxSize(),
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .fillMaxHeight(0.9f),
                 data = characterScreenUiState.charactersList,
-                onNextPage = { viewModel.getCharactersNextPage() },
-                onPreviousPage = { viewModel.getCharactersPreviousPage() },
-                onNullPrevStatusPage = if (viewModel.previousStatePage.value.isNullOrEmpty()) false else true,
-                nPage = viewModel.nPage.value
+                onSearchCharacter = { name ->
+                    viewModel.getFilteredCharacter(name)
+                }
             )
 
             is CharacterScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
@@ -77,6 +85,14 @@ fun CharacterListScreenAppMain(
                 message = "Error al obtener datos."
             )
         }
+        BottomPagination(
+            nPage = viewModel.nPage.value,
+            isNullNextStatusPage = if (viewModel.nextStatePage.value.isNullOrEmpty()) false else true,
+            isNullPrevStatusPage = if (viewModel.previousStatePage.value.isNullOrEmpty()) false else true,
+            onNextPage = { viewModel.getCharactersNextPage() },
+            onPreviousPage = { viewModel.getCharactersPreviousPage() },
+            isSearchBarUsed = viewModel.isSearchBarUsed.value
+        )
     }
 }
 
@@ -84,10 +100,7 @@ fun CharacterListScreenAppMain(
 private fun Result(
     modifier: Modifier = Modifier,
     data: Characters,
-    onNullPrevStatusPage: Boolean,
-    nPage: Int,
-    onNextPage: () -> Unit,
-    onPreviousPage: () -> Unit
+    onSearchCharacter: (String) -> Unit
 ) {
     var expanded by remember { mutableStateOf(false) }
     var message by remember { mutableStateOf("") }
@@ -99,6 +112,7 @@ private fun Result(
         verticalArrangement = Arrangement.Top
     ) {
         BarraDeBusqueda { query ->
+
             var personajeFiltrado =
                 listaObserver.filter { it.name.lowercase().contains(query.lowercase()) }
             listaObserver = emptyList()
@@ -119,7 +133,7 @@ private fun Result(
         }
         if (expanded) {
             LaunchedEffect(Unit) {
-                delay(2000)
+                delay(2500)
                 expanded = false
             }
         }
@@ -130,57 +144,12 @@ private fun Result(
         LazyColumn(
             modifier = Modifier
                 .fillMaxWidth()
-                .fillMaxHeight(0.9f),
+                .fillMaxHeight(),
             verticalArrangement = Arrangement.spacedBy(1.dp)
         ) {
             itemsIndexed(listaObserver) { index, item ->
                 CharacterCard(
                     character = item
-                )
-            }
-        }
-        Row(
-            modifier = Modifier.fillMaxSize(),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
-        ) {
-            //Previous Page.
-            Row(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(50.dp)
-                    .clickable(
-                        enabled = onNullPrevStatusPage,
-                        onClick = {
-                            onPreviousPage()
-                        }
-                    )
-                    .padding(5.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "Pagina anterior."
-                )
-                Text(text = "Anterior")
-            }
-            Text(text = nPage.toString())
-            //Next Page.
-            Row(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(50.dp)
-                    .clickable {
-                        onNextPage()
-                    }
-                    .padding(5.dp),
-                horizontalArrangement = Arrangement.Center,
-                verticalAlignment = Alignment.CenterVertically) {
-                Text(text = "Siguiente")
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                    contentDescription = "Pagina siguiente."
                 )
             }
         }
@@ -271,5 +240,60 @@ private fun CircleWithChangingColor(color: Color, modifier: Modifier = Modifier)
             center = Offset(x = canvasWidth / 2, y = canvasHeight / 2),
             radius = size.minDimension / 2
         )
+    }
+}
+
+/** Botones de seleccion de pagina. */
+@Composable
+private fun BottomPagination(
+    nPage: Int,
+    isNullPrevStatusPage: Boolean,
+    onNextPage: () -> Unit,
+    onPreviousPage: () -> Unit,
+    isNullNextStatusPage: Boolean,
+    isSearchBarUsed: Boolean
+) {
+    if (!isSearchBarUsed) {
+        Row(
+            modifier = Modifier
+                .fillMaxWidth()
+                .height(60.dp)
+                .padding(10.dp),
+            horizontalArrangement = Arrangement.SpaceBetween,
+            verticalAlignment = Alignment.CenterVertically
+        ) {
+            //Previous Page.
+            Button(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(50.dp)
+                    .padding(5.dp)
+                    .background(MaterialTheme.colorScheme.background),
+                enabled = isNullPrevStatusPage,
+                onClick = { onPreviousPage() }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                    contentDescription = "Pagina anterior."
+                )
+            }
+            //Middle Text.
+            Text(text = nPage.toString())
+            //Next Page.
+            Button(
+                modifier = Modifier
+                    .width(100.dp)
+                    .height(50.dp)
+                    .padding(5.dp)
+                    .background(MaterialTheme.colorScheme.background),
+                enabled = isNullNextStatusPage,
+                onClick = { onNextPage() }
+            ) {
+                Icon(
+                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                    contentDescription = "Pagina siguiente."
+                )
+            }
+        }
     }
 }

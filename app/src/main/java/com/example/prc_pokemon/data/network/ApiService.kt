@@ -5,6 +5,7 @@ import com.example.prc_pokemon.data.model.Episodes
 import com.example.prc_pokemon.data.model.Locations
 import com.example.prc_pokemon.data.model.Urls
 import retrofit2.http.GET
+import retrofit2.http.Query
 import retrofit2.http.Url
 
 
@@ -26,6 +27,10 @@ interface ApiService {
     /**Devuelve lista de 20 personajes de la anterior pagina.*/
     @GET
     suspend fun getCharactersPreviousPage(@Url url: String): Characters
+
+    /**Devuelve los personajes ingresados por su nombre. */
+    @GET(value = "https://rickandmortyapi.com/api/character/?name=")
+    suspend fun getFilteredCharacter(@Query(value = "name") name: String): Characters
 
     /**Devuelve lista de todos las localizaciones de la serie.*/
     @GET("api/location")

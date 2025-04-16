@@ -24,13 +24,29 @@ sealed interface CharacterScreenUiState {
 
 class CharacterListScreenViewModel : ViewModel() {
 
-    //Almacena url de paginacion.
+    /** Almacena url de paginacion siguiente.*/
     private var _nextUrlPage = MutableStateFlow("")
+
+    /** Lee url de paginacion siguiente.*/
     val nextStatePage: StateFlow<String> = _nextUrlPage
+
+    /** Almacena url de paginacion anterior.*/
     private var _prevUrlPage = MutableStateFlow("")
+
+    /** Lee url de paginacion anterior.*/
     val previousStatePage: StateFlow<String> = _prevUrlPage
+
+    /** Almacena numero de pagina actual.*/
     private var _nPage = MutableStateFlow(1)
-    val nPage : StateFlow<Int> = _nPage
+
+    /** Lee numero de pagina actual.*/
+    val nPage: StateFlow<Int> = _nPage
+
+    /** Almacena si se ha utilizado el SearchBar en la Screen de los personajes..*/
+    private var _isSearchBarUsed = MutableStateFlow(false)
+
+    /** Lee si se ha utilizado el SearchBar en la Screen de los personajes..*/
+    var isSearchBarUsed: StateFlow<Boolean> = _isSearchBarUsed
 
     var charactersUiState: CharacterScreenUiState by mutableStateOf(CharacterScreenUiState.Loading)
 
@@ -68,7 +84,7 @@ class CharacterListScreenViewModel : ViewModel() {
                 _prevUrlPage.value = characters.info.prev
                 charactersUiState = CharacterScreenUiState.Loading
                 _nPage.value++
-                delay(1000)
+                delay(500)
                 charactersUiState = CharacterScreenUiState.Success(characters)
             } catch (e: IOException) {
                 Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
@@ -91,7 +107,29 @@ class CharacterListScreenViewModel : ViewModel() {
                 _prevUrlPage.value = characters.info.prev
                 charactersUiState = CharacterScreenUiState.Loading
                 _nPage.value--
-                delay(1000)
+                delay(500)
+                charactersUiState = CharacterScreenUiState.Success(characters)
+            } catch (e: IOException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            } catch (e: HttpException) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            } catch (e: Exception) {
+                Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
+                charactersUiState = CharacterScreenUiState.Error
+            }
+        }
+    }
+
+    fun getFilteredCharacter(name: String) {
+        viewModelScope.launch {
+            try {
+                val characters = retrofit.getFilteredCharacter(name)
+                charactersUiState = CharacterScreenUiState.Loading
+                _nPage.value = 0
+                _isSearchBarUsed.value = true
+                delay(500)
                 charactersUiState = CharacterScreenUiState.Success(characters)
             } catch (e: IOException) {
                 Log.e(TAG_CHARACTERSREEN_VM, "Error: ${e.message}")
@@ -108,7 +146,7 @@ class CharacterListScreenViewModel : ViewModel() {
 
 }
 
-
+//Nota:
 /** The mutable State that stores the status of the most recent request
  * Distinta manera de aplicar State a una variable
 var marsUiState: MarsUiState by mutableStateOf(MarsUiState.Loading)

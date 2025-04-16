@@ -58,15 +58,16 @@ fun ErrorMessageScreen(
     }
 }
 
-/** Pantalla de carga. */
+/** Pantalla de carga.
+ * @param text Añade un mensaje personalizado. */
 @Composable
-fun LoadingScreen(modifier: Modifier = Modifier) {
+fun LoadingScreen(modifier: Modifier = Modifier, text: String = "") {
     Column(
         modifier = modifier.fillMaxSize(),
         verticalArrangement = Arrangement.Center,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        Text(text = "Obteniendo datos...")
+        Text(text = text)
         CircularProgressIndicator()
     }
 }
