@@ -37,17 +37,18 @@ class CharacterListScreenViewModel : ViewModel() {
     val previousStatePage: StateFlow<String> = _prevUrlPage
 
     /** Almacena numero de pagina actual.*/
-    private var _nPage = MutableStateFlow(1)
+    private var _nPage = MutableStateFlow(0)
 
     /** Lee numero de pagina actual.*/
     val nPage: StateFlow<Int> = _nPage
 
-    /** Almacena si se ha utilizado el SearchBar en la Screen de los personajes..*/
+    /** Almacena si se ha utilizado el SearchBar en la Screen de los personajes.*/
     private var _isSearchBarUsed = MutableStateFlow(false)
 
     /** Lee si se ha utilizado el SearchBar en la Screen de los personajes..*/
     var isSearchBarUsed: StateFlow<Boolean> = _isSearchBarUsed
 
+    /** Maneja el estado de la UI dentro del viewmodel.*/
     var charactersUiState: CharacterScreenUiState by mutableStateOf(CharacterScreenUiState.Loading)
 
     private val retrofit = RetrofitInstance.retrofitBuilder
@@ -59,8 +60,11 @@ class CharacterListScreenViewModel : ViewModel() {
     fun getCharacters() {
         viewModelScope.launch {
             try {
+                charactersUiState = CharacterScreenUiState.Loading
                 val characters = retrofit.getCharactersList()
                 _nextUrlPage.value = characters.info.next
+                _prevUrlPage.value = characters.info.prev
+                _isSearchBarUsed.value = false
                 delay(1000)
                 charactersUiState = CharacterScreenUiState.Success(characters)
             } catch (e: IOException) {
@@ -79,10 +83,10 @@ class CharacterListScreenViewModel : ViewModel() {
     fun getCharactersNextPage() {
         viewModelScope.launch {
             try {
+                charactersUiState = CharacterScreenUiState.Loading
                 val characters = retrofit.getCharactersNextPage(_nextUrlPage.value)
                 _nextUrlPage.value = characters.info.next
                 _prevUrlPage.value = characters.info.prev
-                charactersUiState = CharacterScreenUiState.Loading
                 _nPage.value++
                 delay(500)
                 charactersUiState = CharacterScreenUiState.Success(characters)
@@ -102,10 +106,10 @@ class CharacterListScreenViewModel : ViewModel() {
     fun getCharactersPreviousPage() {
         viewModelScope.launch {
             try {
+                charactersUiState = CharacterScreenUiState.Loading
                 val characters = retrofit.getCharactersPreviousPage(_prevUrlPage.value)
                 _nextUrlPage.value = characters.info.next
                 _prevUrlPage.value = characters.info.prev
-                charactersUiState = CharacterScreenUiState.Loading
                 _nPage.value--
                 delay(500)
                 charactersUiState = CharacterScreenUiState.Success(characters)
@@ -125,8 +129,9 @@ class CharacterListScreenViewModel : ViewModel() {
     fun getFilteredCharacter(name: String) {
         viewModelScope.launch {
             try {
-                val characters = retrofit.getFilteredCharacter(name)
                 charactersUiState = CharacterScreenUiState.Loading
+                delay(200)
+                val characters = retrofit.getFilteredCharacter(name)
                 _nPage.value = 0
                 _isSearchBarUsed.value = true
                 delay(500)

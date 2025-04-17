@@ -12,7 +12,6 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.text.KeyboardActions
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.MoreVert
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.outlined.Search
 import androidx.compose.material3.CircularProgressIndicator
@@ -91,8 +90,7 @@ fun formatDate(isoDate: String): String {
  * Si la version de la API del dispositivo es mayor que 31, utilizará SearchBar de Jetpack Compose
  * de lo contrario utilizará un OutlinedTextField como campo de búsqueda.
  *
- * @param onQuerySearch Funcion con retorno de string que representa
- * la palabra que el usuario quiere encontrar.
+ * @param onQuerySearch Retorno de string que representa la palabra que el usuario quiere encontrar.
  * */
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -121,18 +119,17 @@ fun BarraDeBusqueda(
                         query = text,
                         onQueryChange = {
                             text = it
-                            onQuerySearch(it) //Al devolver nada, se reiniciara la lista.
+                            onQuerySearch(text) //Al devolver nada, se reiniciara la lista.
                         },
                         onSearch = {
                             expanded = false
-                            //manda query de busqueda.
+                            //Manda query de busqueda.
                             onQuerySearch(text)
                         },
                         expanded = expanded,
                         onExpandedChange = { expanded = it },
                         placeholder = { Text("Nombre de personaje aqui") },
                         leadingIcon = { Icon(Icons.Default.Search, contentDescription = null) },
-                        trailingIcon = { Icon(Icons.Default.MoreVert, contentDescription = null) },
                     )
                 },
                 expanded = false,
@@ -140,7 +137,6 @@ fun BarraDeBusqueda(
             ) {/*Searchbar llaves.*/ }
         }
     } else {
-        var text by rememberSaveable { mutableStateOf("") }
         Row(
             modifier = modifier
                 .fillMaxWidth()
@@ -151,7 +147,7 @@ fun BarraDeBusqueda(
                 value = text,
                 onValueChange = {
                     text = it
-                    onQuerySearch(it)
+                    onQuerySearch(text)
                 },
                 label = {
                     Text("Buscar")

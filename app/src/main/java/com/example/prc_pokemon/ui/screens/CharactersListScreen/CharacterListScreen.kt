@@ -9,7 +9,6 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -30,7 +29,6 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -39,9 +37,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.rotate
+import androidx.compose.ui.focus.FocusManager
 import androidx.compose.ui.geometry.Offset
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalFocusManager
+import androidx.compose.ui.platform.LocalSoftwareKeyboardController
+import androidx.compose.ui.platform.SoftwareKeyboardController
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil3.compose.AsyncImage
@@ -50,8 +52,6 @@ import com.example.prc_pokemon.data.model.SingleCharacter
 import com.example.prc_pokemon.ui.utils.BarraDeBusqueda
 import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
 import com.example.prc_pokemon.ui.utils.LoadingScreen
-import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.StateFlow
 
 @SuppressLint("StateFlowValueCalledInComposition")
 @Composable
@@ -61,97 +61,77 @@ fun CharacterListScreenAppMain(
 ) {
     val characterScreenUiState = viewModel.charactersUiState
 
-    //TODO hacer que la barra de busqueda encuentre personajes por llamada a la API.
+    /**Focus del compose actual.*/
+    val focusManager: FocusManager = LocalFocusManager.current
+
+    /**Controlador del teclado del dispositivo actual.*/
+    val keyboardController: SoftwareKeyboardController? = LocalSoftwareKeyboardController.current
+    var expanded by remember { mutableStateOf(viewModel.isSearchBarUsed) }
 
     Column(
-        modifier = modifier,
-        verticalArrangement = Arrangement.Center,
+        modifier = modifier
+            .clickable(onClick = {
+                focusManager.clearFocus()
+                keyboardController?.hide()
+            }),
+        verticalArrangement = Arrangement.SpaceBetween,
         horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        when (characterScreenUiState) {
-            is CharacterScreenUiState.Success -> Result(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .fillMaxHeight(0.9f),
-                data = characterScreenUiState.charactersList,
-                onSearchCharacter = { name ->
-                    viewModel.getFilteredCharacter(name)
+        BarraDeBusqueda { query ->
+            when {
+                query.isNotEmpty() -> {
+                    viewModel.getFilteredCharacter(query)
                 }
-            )
 
-            is CharacterScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
-            is CharacterScreenUiState.Error -> ErrorMessageScreen(
-                modifier = Modifier.fillMaxSize(),
-                message = "Error al obtener datos."
+                query.isNullOrEmpty() -> {
+                    viewModel.getCharacters()
+                }
+            }
+        }
+        Column(modifier = Modifier.weight(1f).fillMaxWidth(),
+            verticalArrangement = Arrangement.Center
+        ) {
+            when (characterScreenUiState) {
+                is CharacterScreenUiState.Success -> {
+                    Result(
+                        data = characterScreenUiState.charactersList,
+                        modifier = Modifier.fillMaxSize()
+                    )
+                }
+
+                is CharacterScreenUiState.Loading -> LoadingScreen(modifier = Modifier.fillMaxSize())
+                is CharacterScreenUiState.Error -> ErrorMessageScreen(
+                    modifier = Modifier.fillMaxSize(),
+                    message = "Error al obtener datos."
+                )
+            }
+        }
+        if (!expanded.value) {
+            BottomPagination(
+                nPage = viewModel.nPage.value,
+                isNullNextStatusPage = !viewModel.nextStatePage.value.isNullOrEmpty(),
+                isNullPrevStatusPage = !viewModel.previousStatePage.value.isNullOrEmpty(),
+                onNextPage = { viewModel.getCharactersNextPage() },
+                onPreviousPage = { viewModel.getCharactersPreviousPage() }
             )
         }
-        BottomPagination(
-            nPage = viewModel.nPage.value,
-            isNullNextStatusPage = if (viewModel.nextStatePage.value.isNullOrEmpty()) false else true,
-            isNullPrevStatusPage = if (viewModel.previousStatePage.value.isNullOrEmpty()) false else true,
-            onNextPage = { viewModel.getCharactersNextPage() },
-            onPreviousPage = { viewModel.getCharactersPreviousPage() },
-            isSearchBarUsed = viewModel.isSearchBarUsed.value
-        )
     }
 }
 
 @Composable
 private fun Result(
     modifier: Modifier = Modifier,
-    data: Characters,
-    onSearchCharacter: (String) -> Unit
+    data: Characters
 ) {
-    var expanded by remember { mutableStateOf(false) }
-    var message by remember { mutableStateOf("") }
-    //Observa los cambios en la lista.
-    var listaObserver by remember { mutableStateOf(data.results) }
-    Column(
+    LazyColumn(
         modifier = modifier,
-        horizontalAlignment = Alignment.CenterHorizontally,
-        verticalArrangement = Arrangement.Top
+        verticalArrangement = Arrangement.Center,
+        horizontalAlignment = Alignment.CenterHorizontally
     ) {
-        BarraDeBusqueda { query ->
-
-            var personajeFiltrado =
-                listaObserver.filter { it.name.lowercase().contains(query.lowercase()) }
-            listaObserver = emptyList()
-            listaObserver = personajeFiltrado
-            when {
-                personajeFiltrado.isEmpty() -> {
-                    message = "No se ha encontrado al personaje."
-                    expanded = true
-                    listaObserver = data.results
-                }
-
-                query.isEmpty() -> {
-                    message = "No ha ingresado ningun nombre."
-                    expanded = true
-                    listaObserver = data.results
-                }
-            }
-        }
-        if (expanded) {
-            LaunchedEffect(Unit) {
-                delay(2500)
-                expanded = false
-            }
-        }
-        //Texto que aparece y luego desaparece.
-        AnimatedVisibility(expanded) {
-            Text(text = message)
-        }
-        LazyColumn(
-            modifier = Modifier
-                .fillMaxWidth()
-                .fillMaxHeight(),
-            verticalArrangement = Arrangement.spacedBy(1.dp)
-        ) {
-            itemsIndexed(listaObserver) { index, item ->
-                CharacterCard(
-                    character = item
-                )
-            }
+        itemsIndexed(data.results) { index, item ->
+            CharacterCard(
+                character = item
+            )
         }
     }
 }
@@ -250,50 +230,47 @@ private fun BottomPagination(
     isNullPrevStatusPage: Boolean,
     onNextPage: () -> Unit,
     onPreviousPage: () -> Unit,
-    isNullNextStatusPage: Boolean,
-    isSearchBarUsed: Boolean
+    isNullNextStatusPage: Boolean
 ) {
-    if (!isSearchBarUsed) {
-        Row(
+    Row(
+        modifier = Modifier
+            .fillMaxWidth()
+            .height(60.dp)
+            .padding(10.dp),
+        horizontalArrangement = Arrangement.SpaceBetween,
+        verticalAlignment = Alignment.CenterVertically
+    ) {
+        //Previous Page.
+        Button(
             modifier = Modifier
-                .fillMaxWidth()
-                .height(60.dp)
-                .padding(10.dp),
-            horizontalArrangement = Arrangement.SpaceBetween,
-            verticalAlignment = Alignment.CenterVertically
+                .width(100.dp)
+                .height(50.dp)
+                .padding(5.dp)
+                .background(MaterialTheme.colorScheme.background),
+            enabled = isNullPrevStatusPage,
+            onClick = { onPreviousPage() }
         ) {
-            //Previous Page.
-            Button(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(50.dp)
-                    .padding(5.dp)
-                    .background(MaterialTheme.colorScheme.background),
-                enabled = isNullPrevStatusPage,
-                onClick = { onPreviousPage() }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowBack,
-                    contentDescription = "Pagina anterior."
-                )
-            }
-            //Middle Text.
-            Text(text = nPage.toString())
-            //Next Page.
-            Button(
-                modifier = Modifier
-                    .width(100.dp)
-                    .height(50.dp)
-                    .padding(5.dp)
-                    .background(MaterialTheme.colorScheme.background),
-                enabled = isNullNextStatusPage,
-                onClick = { onNextPage() }
-            ) {
-                Icon(
-                    imageVector = Icons.AutoMirrored.Default.ArrowForward,
-                    contentDescription = "Pagina siguiente."
-                )
-            }
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.ArrowBack,
+                contentDescription = "Pagina anterior."
+            )
+        }
+        //Middle Text.
+        Text(text = nPage.toString())
+        //Next Page.
+        Button(
+            modifier = Modifier
+                .width(100.dp)
+                .height(50.dp)
+                .padding(5.dp)
+                .background(MaterialTheme.colorScheme.background),
+            enabled = isNullNextStatusPage,
+            onClick = { onNextPage() }
+        ) {
+            Icon(
+                imageVector = Icons.AutoMirrored.Default.ArrowForward,
+                contentDescription = "Pagina siguiente."
+            )
         }
     }
 }

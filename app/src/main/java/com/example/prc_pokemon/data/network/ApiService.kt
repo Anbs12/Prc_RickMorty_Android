@@ -28,9 +28,9 @@ interface ApiService {
     @GET
     suspend fun getCharactersPreviousPage(@Url url: String): Characters
 
-    /**Devuelve los personajes ingresados por su nombre. */
-    @GET(value = "https://rickandmortyapi.com/api/character/?name=")
-    suspend fun getFilteredCharacter(@Query(value = "name") name: String): Characters
+    /**Devuelve los personajes ingresados por su nombre.*/
+    @GET(value = "api/character/")
+    suspend fun getFilteredCharacter(@Query("name") nombre: String): Characters
 
     /**Devuelve lista de todos las localizaciones de la serie.*/
     @GET("api/location")
