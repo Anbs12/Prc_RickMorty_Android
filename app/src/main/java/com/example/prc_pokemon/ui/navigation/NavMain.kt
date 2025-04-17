@@ -68,7 +68,7 @@ fun NavigationAppMain(
                     tween(1000)
                 )
             }) {
-            CharacterListScreenAppMain()
+            CharacterListScreenAppMain(modifier = Modifier.fillMaxSize())
         }
 
         composable(
