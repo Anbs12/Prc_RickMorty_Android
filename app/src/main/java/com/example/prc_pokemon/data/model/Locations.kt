@@ -1,12 +1,15 @@
 package com.example.prc_pokemon.data.model
 
+import com.google.gson.annotations.SerializedName
+
 /** Clase de datos para localizaciones
  * @param locationsInfo : Para paginacion.
  * @param results : Lista de cada localizacion con sus datos.
  * */
 data class Locations(
+    @SerializedName(value = "info")
     val locationsInfo: LocationsInfo,
-    val results: List<SingleLocation>
+    val results: MutableList<SingleLocation>
 )
 
 data class LocationsInfo(

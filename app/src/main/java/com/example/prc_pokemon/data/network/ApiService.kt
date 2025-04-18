@@ -9,8 +9,12 @@ import retrofit2.http.Query
 import retrofit2.http.Url
 
 
-//Interfaz retrofit para definir peticiones.
+/**Interfaz retrofit para definir peticiones y/o funciones.*/
 interface ApiService {
+
+    /*
+    * * Main Screen
+    * */
 
     /**Devuelve tres links: Characters, Locations, Epidoses.*/
     @GET("api")
@@ -20,6 +24,10 @@ interface ApiService {
     @GET("api/character")
     suspend fun getCharactersList(): Characters
 
+    /*
+    * * Characters Screen
+    * */
+
     /**Devuelve lista de 20 personajes de la siguiente pagina.*/
     @GET
     suspend fun getCharactersNextPage(@Url url: String): Characters
@@ -28,13 +36,25 @@ interface ApiService {
     @GET
     suspend fun getCharactersPreviousPage(@Url url: String): Characters
 
-    /**Devuelve los personajes ingresados por su nombre.*/
+    /**Devuelve los personajes ingresados por su nombre.
+     * @param nombre Nombre del personaje que se desea encontrar.*/
     @GET(value = "api/character/")
     suspend fun getFilteredCharacter(@Query("name") nombre: String): Characters
+
+    /*
+    * * Locations Screen
+    * */
 
     /**Devuelve lista de todos las localizaciones de la serie.*/
     @GET("api/location")
     suspend fun getLocations(): Locations
+
+    @GET
+    suspend fun getNextLocations(@Url url: String): Locations
+
+    /*
+    * * Episodes Screen
+    * */
 
     /**Devuelve lista de todos los episodios de la serie.*/
     @GET("api/episode")
