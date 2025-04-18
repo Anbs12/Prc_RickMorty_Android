@@ -14,6 +14,7 @@ import kotlinx.coroutines.launch
 import okio.IOException
 import retrofit2.HttpException
 
+/**Maneja el estado de la UI de la pantalla de la aplicacion.*/
 sealed interface EpisodesListScreenUiState {
     data class Success(val episodes: Episodes) : EpisodesListScreenUiState
     object Loading : EpisodesListScreenUiState

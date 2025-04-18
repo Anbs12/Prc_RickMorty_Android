@@ -16,6 +16,7 @@ import kotlinx.coroutines.launch
 import retrofit2.HttpException
 import java.io.IOException
 
+/**Maneja el estado de la UI de la pantalla de la aplicacion.*/
 sealed interface CharacterScreenUiState {
     data class Success(val charactersList: Characters) : CharacterScreenUiState
     object Loading : CharacterScreenUiState

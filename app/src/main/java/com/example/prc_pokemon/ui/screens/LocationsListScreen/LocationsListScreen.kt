@@ -1,10 +1,13 @@
 package com.example.prc_pokemon.ui.screens.LocationsListScreen
 
+import android.annotation.SuppressLint
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -12,15 +15,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.itemsIndexed
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.KeyboardArrowUp
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.ElevatedCard
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.derivedStateOf
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -34,7 +42,9 @@ import com.example.prc_pokemon.data.model.SingleLocation
 import com.example.prc_pokemon.ui.utils.ErrorMessageScreen
 import com.example.prc_pokemon.ui.utils.LoadingScreen
 import com.example.prc_pokemon.ui.utils.formatDate
+import kotlinx.coroutines.delay
 
+@SuppressLint("StateFlowValueCalledInComposition")
 @Composable
 fun LocationsAppMain(
     modifier: Modifier = Modifier,
@@ -42,10 +52,19 @@ fun LocationsAppMain(
 ) {
 
     val state = viewModel.uiState
+    val dinamicData = viewModel.dinamicList.collectAsState()
+    val dinamicNextLocationUrl = viewModel.isNextLocationURLEmpty.collectAsState()
 
     when (state) {
         is LocationsListScreenUIState.Success -> {
-            ResultScreen(modifier = Modifier.fillMaxSize(), data = state.locations.results)
+            ResultScreen(
+                modifier = Modifier.fillMaxSize(),
+                data = dinamicData.value,
+                onUpdateList = {
+                    viewModel.getNextLocations()
+                },
+                isNextLocationUrlEmpty = !dinamicNextLocationUrl.value
+            )
         }
 
         is LocationsListScreenUIState.Loading -> LoadingScreen()
@@ -61,13 +80,62 @@ fun LocationsAppMain(
 @Composable
 private fun ResultScreen(
     modifier: Modifier = Modifier,
-    data: List<SingleLocation>
+    data: MutableList<SingleLocation>,
+    onUpdateList: () -> Unit,
+    isNextLocationUrlEmpty: Boolean
 ) {
-    LazyColumn(
-        modifier = modifier
+    var expanded by remember { mutableStateOf(false) }
+    var isUpdate by remember { mutableStateOf(false) }
+    val listState = rememberLazyListState()
+    Column(
+        modifier = modifier,
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.SpaceAround
     ) {
-        itemsIndexed(data) { index, items ->
-            LocationsCard(modifier = Modifier.fillMaxSize(), data = items)
+        LazyColumn(
+            modifier = Modifier.fillMaxHeight(0.9f),
+            state = listState
+        ) {
+            itemsIndexed(data) { index, items ->
+                LocationsCard(modifier = Modifier.fillMaxSize(), data = items)
+            }
+        }
+        if (isNextLocationUrlEmpty) {
+            val onBottomReached = remember {
+                derivedStateOf {
+                    val lastVisibleItem = listState.layoutInfo
+                        .visibleItemsInfo.lastOrNull()
+                    lastVisibleItem?.index == listState
+                        .layoutInfo.totalItemsCount - 1
+                }
+            }
+            LaunchedEffect(onBottomReached.value) {
+                if (onBottomReached.value) {
+                    expanded = true
+                    isUpdate = true
+                }
+            }
+            LaunchedEffect(expanded == true) {
+                delay(1000)
+                expanded = false
+            }
+            if (isUpdate) {
+                onUpdateList()
+                isUpdate = false
+            }
+            if (expanded) {
+                CircularProgressIndicator()
+            }
+        }else{
+            var expand by remember { mutableStateOf(false) }
+            LaunchedEffect(Unit) {
+                expand = true
+                delay(1000)
+                expand = false
+            }
+            AnimatedVisibility(expand) {
+                Text("Llegaste al limite.")
+            }
         }
     }
 }
