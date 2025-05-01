@@ -5,5 +5,6 @@ enum class Routes() {
     Main,
     Characters_Route,
     Episodes_Route,
+    Episode_Single,
     Locations_Route
 }

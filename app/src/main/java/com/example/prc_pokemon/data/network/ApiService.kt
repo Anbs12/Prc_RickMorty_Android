@@ -3,8 +3,10 @@ package com.example.prc_pokemon.data.network
 import com.example.prc_pokemon.data.model.Characters
 import com.example.prc_pokemon.data.model.Episodes
 import com.example.prc_pokemon.data.model.Locations
+import com.example.prc_pokemon.data.model.SingleEpisode
 import com.example.prc_pokemon.data.model.Urls
 import retrofit2.http.GET
+import retrofit2.http.Path
 import retrofit2.http.Query
 import retrofit2.http.Url
 
@@ -60,6 +62,9 @@ interface ApiService {
     @GET("api/episode")
     suspend fun getEpisodes(): Episodes
 
+    /**Devuelve informacion del Episodio seleccionado.*/
+    @GET("api/episode/{id}")
+    suspend fun getSingleEpisodeInfo(@Path ("id") id: Int): SingleEpisode
 
     //EJEMPLO CON PATH
     //@GET("{data}")

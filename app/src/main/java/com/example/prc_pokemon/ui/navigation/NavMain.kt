@@ -5,10 +5,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
+import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import androidx.navigation.navArgument
 import com.example.prc_pokemon.ui.screens.CharactersListScreen.CharacterListScreenAppMain
+import com.example.prc_pokemon.ui.screens.EpisodesListScreen.EpisodeSelectedResultScreen
 import com.example.prc_pokemon.ui.screens.EpisodesListScreen.EpisodesListAppMain
 import com.example.prc_pokemon.ui.screens.LocationsListScreen.LocationsAppMain
 import com.example.prc_pokemon.ui.screens.mainScreen.MainApp
@@ -26,6 +29,7 @@ fun NavigationAppMain(
         startDestination = Routes.Main.name,
         modifier = modifier
     ) {
+        //Pantalla principal.
         composable(
             route = Routes.Main.name,
             enterTransition = {
@@ -54,6 +58,7 @@ fun NavigationAppMain(
             )
         }
 
+        //Personajes.
         composable(
             route = Routes.Characters_Route.name,
             enterTransition = {
@@ -71,6 +76,7 @@ fun NavigationAppMain(
             CharacterListScreenAppMain(modifier = Modifier.fillMaxSize())
         }
 
+        //Localizaciones.
         composable(
             route = Routes.Locations_Route.name,
             enterTransition = {
@@ -89,6 +95,7 @@ fun NavigationAppMain(
             LocationsAppMain()
         }
 
+        //Lista de episodios.
         composable(
             route = Routes.Episodes_Route.name,
             enterTransition = {
@@ -104,7 +111,33 @@ fun NavigationAppMain(
                 )
             }
         ) {
-            EpisodesListAppMain()
+            EpisodesListAppMain() { episodeId ->
+                navController.navigate(route = Routes.Episode_Single.name + "/$episodeId")
+            }
+        }
+
+        //Episodio unico seleccionado.
+        composable(
+            route = Routes.Episode_Single.name + "/{id}",
+            arguments = listOf(
+                navArgument("id") {
+                    type = NavType.IntType
+                }
+            ),
+            enterTransition = {
+                slideIntoContainer(
+                    SlideDirection.End,
+                    tween(1000)
+                )
+            }, exitTransition = {
+                slideOutOfContainer(
+                    SlideDirection.Start,
+                    tween(1000)
+                )
+            }
+        ) { navBackStackEntry ->
+            val id = navBackStackEntry.arguments?.getInt("id") ?: 0
+            EpisodeSelectedResultScreen(id = id)
         }
     }
 }
